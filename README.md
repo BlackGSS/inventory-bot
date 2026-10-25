@@ -1,5 +1,5 @@
 # Inventory bot
-Gestiona a través de Telegram un inventario. Ideal para saber qué tienes en las cajas de tu estudio sin volverte loco.
+Gestiona un inventario a través de Telegram. Ideal para saber qué tienes en las cajas de tu estudio sin volverte loco.
 
 ## Configuracion
 Tras copiar y pegar los archivos en tu servidor:
