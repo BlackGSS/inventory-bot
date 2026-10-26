@@ -5,7 +5,7 @@ Gestiona un inventario a través de Telegram. Ideal para saber qué tienes en la
 Tras copiar y pegar los archivos en tu servidor:
 - Habla con @BotFather en Telegram, crea un bot con ```/newbot``` y copia el token.
 - Averigua tu ID numérico de Telegram con @userinfobot.
-- Rellena ambas informaciones en el archivo ```.env ```
+- Cambia el nombre del fichero ```.env.example``` por ```.env ``` y rellena la información con los datos anteriores.
 - Ejecuta ``` docker compose up -d --build ```
 
 ## Lista de comandos
