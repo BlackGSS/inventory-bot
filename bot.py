@@ -439,7 +439,7 @@ HELP = (
     "   (la nota va siempre al final)\n"
     "   «Tengo», «a la categoría», «con tags» y «con la nota» son opcionales. Te enseño lo que he entendido para que confirmes o edites.\n\n"
     "*Consultar* (salen con botones: toca un objeto para editarlo)\n"
-    "/buscar texto – por nombre, tag o nota\n"
+    "/busca texto – por nombre, tag o nota\n"
     "/lugares – elige un lugar\n"
     "/categorias – elige una categoría\n"
     "/lugar texto · /categoria texto · /tag texto\n"
@@ -614,7 +614,7 @@ async def buscar(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     text = args_text(ctx)
     q = norm(text)
     if not q:
-        await update.message.reply_text("Uso: /buscar texto")
+        await update.message.reply_text("Uso: /busca texto")
         return
     ids = query_ids(
         "name_norm LIKE ? OR tags_norm LIKE ? OR description_norm LIKE ?", (f"%{q}%", f"%{q}%", f"%{q}%"), "name_norm"
@@ -1350,8 +1350,39 @@ async def on_voice(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         )
 
 
+# Lista de comandos que Telegram sugiere al escribir «/» (en orden de uso habitual).
+# Se registra sola al arrancar, así nunca se queda desfasada respecto al código.
+BOT_COMMANDS = [
+    ("add", "Añadir un objeto (nombre, cantidad, lugar, categoría…)"),
+    ("busca", "Buscar por nombre, tag o nota"),
+    ("lista", "Ver todo el inventario"),
+    ("lugares", "Ver los lugares y su contenido"),
+    ("categorias", "Ver las categorías"),
+    ("tags", "Ver y eliminar tags"),
+    ("lugar", "Qué hay en un lugar (escribe parte del nombre)"),
+    ("categoria", "Qué hay en una categoría"),
+    ("tag", "Objetos que tienen un tag"),
+    ("borrartag", "Eliminar tags de todos los objetos"),
+    ("bloqueados", "Tags que la IA ya no genera"),
+    ("retag", "Generar tags con IA a los que no tienen"),
+    ("cantidad", "Fijar la cantidad de un objeto (por id)"),
+    ("mover", "Cambiar de lugar un objeto (por id)"),
+    ("setcat", "Cambiar la categoría de un objeto (por id)"),
+    ("settags", "Cambiar los tags de un objeto (por id)"),
+    ("borrar", "Eliminar un objeto (por id)"),
+    ("voz", "Estado del reconocimiento de voz"),
+    ("cancelar", "Cancelar una edición a medias"),
+    ("help", "Ayuda y ejemplos"),
+]
+
+
 async def post_init(app):
-    """Al arrancar, precarga el modelo de voz en segundo plano para que el primer audio no espere."""
+    """Al arrancar, registra los comandos en Telegram y precarga el modelo de voz en segundo plano."""
+    try:
+        await app.bot.set_my_commands(BOT_COMMANDS)
+        log.info("Comandos registrados en Telegram (%d)", len(BOT_COMMANDS))
+    except Exception as e:  # no es crítico: el bot funciona igual, solo faltaría la sugerencia al escribir «/»
+        log.warning("No se pudieron registrar los comandos en Telegram: %s", e)
 
     async def preload():
         try:
@@ -1647,7 +1678,7 @@ async def on_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         elif expired:
             await update.message.reply_text(EXPIRED_NOTE)
         else:
-            await update.message.reply_text("🤔 No te he entendido. Prueba /buscar texto, o /help para ver los comandos.")
+            await update.message.reply_text("🤔 No te he entendido. Prueba /busca texto, o /help para ver los comandos.")
         return
     if p["kind"] == "pf":  # corrección de un objeto pendiente de confirmar
         err = await finish_prop_edit(ctx, p, update.message.text, update.message)
@@ -1837,7 +1868,7 @@ def main():
     app.add_error_handler(on_error)
     for name, fn in [
         ("start", start), ("help", start), ("cancelar", cancelar), ("add", add),
-        ("buscar", buscar), ("lugar", lugar), ("lugares", lugares),
+        ("busca", buscar), ("lugar", lugar), ("lugares", lugares),
         ("categoria", categoria), ("categorias", categorias), ("tag", tag),
         ("tags", tags_list), ("borrartag", borrartag), ("bloqueados", bloqueados),
         ("lista", lista), ("cantidad", cantidad),
