@@ -1,10 +1,24 @@
 services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    volumes:
+      - ./ollama:/root/.ollama      # aquí se guardan los modelos de IA descargados
+
   inventario-bot:
     build: .
     container_name: inventario-bot
     restart: unless-stopped
     env_file: .env
+    depends_on:
+      - ollama
     environment:
       DB_PATH: /data/inventario.db
+      OLLAMA_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:3b}
+      WHISPER_MODEL: ${WHISPER_MODEL:-small}
+      WHISPER_DIR: /models
     volumes:
       - ./data:/data
+      - ./whisper:/models           # aquí se guarda el modelo de voz descargado

@@ -1,1 +1,10 @@
 python-telegram-bot==21.6
+httpx~=0.27
+faster-whisper==1.1.0
+# faster-whisper 1.1.0 se desarrolló con las librerías de su época; sin estos límites pip instala versiones
+# nuevas incompatibles:
+#  - huggingface_hub 1.x ya no instala «requests», que faster-whisper usa sin declararlo
+#  - PyAV 15+ ya no acepta el parámetro «metadata_errors» con el que faster-whisper abre el audio
+huggingface_hub<1.0
+requests
+av>=11,<15
